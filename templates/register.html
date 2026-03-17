@@ -1,0 +1,81 @@
+{% extends "base.html" %} {% block title %}Register for {{ event.name }}{%
+endblock %} {% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card card-glass shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <h1 class="h3 fw-semibold mb-3 text-center">Event Registration</h1>
+        <p class="text-muted text-center mb-4">
+          Registering for: <br />
+          <strong class="text-dark">{{ event.name }}</strong>
+        </p>
+
+        <form
+          method="post"
+          action="{{ url_for('register', event_id=event_id) }}"
+          novalidate
+        >
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="name"
+              name="name"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="mobile_number" class="form-label">Mobile Number</label>
+            <input
+              type="tel"
+              class="form-control form-control-modern"
+              id="mobile_number"
+              name="mobile_number"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="company_name"
+              name="company_name"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="position" class="form-label">Position</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="position"
+              name="position"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control form-control-modern"
+              id="email"
+              name="email"
+              required
+            />
+          </div>
+
+          <button type="submit" class="btn btn-primary w-100 btn-modern">
+            Submit Registration
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

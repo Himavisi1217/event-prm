@@ -1,0 +1,89 @@
+{% extends "base.html" %} {% block title %}Edit Participant{% endblock %} {%
+block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card card-glass shadow-lg border-0">
+      <div class="card-body p-4 p-md-5">
+        <h1 class="h4 fw-semibold mb-3 text-center">Edit Participant</h1>
+        <p class="text-muted text-center mb-4">
+          Update the details for {{ participant.name }}.
+        </p>
+
+        <form method="post" novalidate>
+          <div class="mb-3">
+            <label for="name" class="form-label">Full Name</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="name"
+              name="name"
+              value="{{ participant.name }}"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="mobile_number" class="form-label">Mobile Number</label>
+            <input
+              type="tel"
+              class="form-control form-control-modern"
+              id="mobile_number"
+              name="mobile_number"
+              value="{{ participant.mobile_number }}"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="company_name" class="form-label">Company Name</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="company_name"
+              name="company_name"
+              value="{{ participant.company_name }}"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="position" class="form-label">Position</label>
+            <input
+              type="text"
+              class="form-control form-control-modern"
+              id="position"
+              name="position"
+              value="{{ participant.position }}"
+              required
+            />
+          </div>
+
+          <div class="mb-4">
+            <label for="email" class="form-label">Email</label>
+            <input
+              type="email"
+              class="form-control form-control-modern"
+              id="email"
+              name="email"
+              value="{{ participant.email }}"
+              required
+            />
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <a
+              href="{{ url_for('admin_dashboard') }}"
+              class="btn btn-outline-light btn-modern"
+            >
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-primary btn-modern">
+              Save Changes
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

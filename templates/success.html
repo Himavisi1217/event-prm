@@ -1,0 +1,28 @@
+{% extends "base.html" %} {% block title %}Registration Successful{% endblock %}
+{% block content %}
+<div class="row justify-content-center">
+  <div class="col-lg-6 col-md-8">
+    <div class="card card-glass shadow-lg border-0 text-center">
+      <div class="card-body p-4 p-md-5">
+        <div class="success-icon mb-3">
+          <span class="checkmark">✓</span>
+        </div>
+        <h1 class="h3 fw-semibold mb-3">Registration Successful</h1>
+        <p class="text-muted mb-4">
+          Thank you for registering. Your details have been securely saved and
+          you are now in the pool for the random selection.
+        </p>
+        <a
+          href="{{ url_for('register') }}"
+          class="btn btn-outline-primary btn-modern me-2"
+        >
+          Register Another Person
+        </a>
+        <a href="{{ url_for('wheel') }}" class="btn btn-primary btn-modern">
+          Go to Randomizer
+        </a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
