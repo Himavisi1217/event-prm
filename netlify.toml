@@ -1,15 +1,10 @@
 [build]
-  command = "pip install -r requirements.txt"
-  publish = "."
+  command = "mkdir -p public && pip install -r requirements.txt"
+  publish = "public"
 
 [functions]
   directory = "netlify/functions"
-  included_files = ["templates/**", "static/**"]
-
-[[redirects]]
-  from = "/static/*"
-  to = "/static/:splat"
-  status = 200
+  included_files = ["templates/**", "static/**", "app.py"]
 
 [[redirects]]
   from = "/*"
