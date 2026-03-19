@@ -1,14 +1,18 @@
-// --- API endpoints used by the front‑end ---
+// --- CONSTANTS & STATE ---
+
+// The current event ID is passed from the Flask template to the window object
 const EVENT_ID = window.CURRENT_EVENT_ID || "";
+// Endpoint to fetch participants for the current event
 const API_PARTICIPANTS = `/api/participants/${EVENT_ID}`;
 
-// In‑memory list of participants loaded from the backend.
+// In-memory list of all participants loaded from the backend
 let participants = [];
-// Current active winners to prevent duplicates in local pick
+// List of participants who have already won (to avoid picking them again)
 let selectedWinners = [];
-
+// Flag to prevent multiple spins at the same time
 let spinning = false;
 
+// DOM Elements
 const canvas = document.getElementById("wheelCanvas");
 const ctx = canvas.getContext("2d");
 const spinButton = document.getElementById("spinButton");
@@ -20,7 +24,8 @@ const winnerCountBadge = document.getElementById("winnerCountBadge");
 const numWinnersInput = document.getElementById("numWinners");
 
 /**
- * Fisher‑Yates shuffle to randomize an array in place.
+ * Fisher-Yates shuffle algorithm to randomize an array in place.
+ * (Currently used as a utility if needed)
  */
 function shuffle(array) {
   for (let i = array.length - 1; i > 0; i -= 1) {
@@ -30,22 +35,26 @@ function shuffle(array) {
 }
 
 /**
- * Fetch all participants from the backend and draw the wheel.
+ * Initialization: Fetch participants from the server and do the initial wheel draw.
  */
 async function loadParticipants() {
   try {
     const res = await fetch(API_PARTICIPANTS);
     const data = await res.json();
     participants = data;
+    
+    // Update the UI with the total count
     participantCountBadge.textContent = `${participants.length} registered participants`;
-    // Disable buttons if we have nobody to draw from.
+    
+    // Enable/Disable spin button based on availability
     spinButton.disabled = participants.length === 0;
 
-    // Default max to participants available
+    // Set the max pickable winners to the number of participants
     if (participants.length > 0) {
       numWinnersInput.max = participants.length;
     }
 
+    // Initial render of the wheel
     drawWheel();
   } catch (e) {
     participantCountBadge.textContent = "Error loading participants";
@@ -54,9 +63,10 @@ async function loadParticipants() {
 }
 
 /**
- * Draw the wheel segments on the canvas based on the participants list.
+ * Core Drawing Logic: Renders the wheel slices and participant names on the Canvas.
  */
 function drawWheel() {
+  // If no participants, draw a neutral empty circle
   if (!participants.length) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#f8fafc";
@@ -64,7 +74,7 @@ function drawWheel() {
     ctx.arc(160, 160, 150, 0, Math.PI * 2);
     ctx.fill();
     ctx.fillStyle = "#64748b";
-    ctx.font = "16px Inter, system-ui, sans-serif";
+    ctx.font = "16px Poppins, system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("No participants yet", 160, 165);
     return;
@@ -74,13 +84,13 @@ function drawWheel() {
   const cy = canvas.height / 2;
   const radius = 150;
 
-  // Only draw participants not already selected
+  // Filter out participants who have already won in this session
   const availableParticipants = participants.filter(
     (p) => !selectedWinners.some((w) => w.id === p.id),
   );
 
+  // If everyone has won, clear the wheel
   if (availableParticipants.length === 0) {
-    // Draw empty wheel
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     ctx.fillStyle = "#f8fafc";
     ctx.beginPath();
@@ -89,15 +99,17 @@ function drawWheel() {
     return;
   }
 
+  // Calculate angle for each slice
   const sliceAngle = (2 * Math.PI) / availableParticipants.length;
 
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
+  // Iterate and draw each slice
   availableParticipants.forEach((p, index) => {
     const startAngle = index * sliceAngle;
     const endAngle = startAngle + sliceAngle;
 
-    // Use lovely pastel hues
+    // Use HSL for dynamic, aesthetic colors
     const hue = (index * (360 / availableParticipants.length)) % 360;
     ctx.beginPath();
     ctx.moveTo(cx, cy);
@@ -106,18 +118,22 @@ function drawWheel() {
     ctx.fillStyle = `hsl(${hue}, 80%, 85%)`;
     ctx.fill();
 
-    // Dark sleek text
+    // Draw participant name inside the slice
     ctx.save();
     ctx.translate(cx, cy);
     ctx.rotate(startAngle + sliceAngle / 2);
     ctx.textAlign = "right";
     ctx.fillStyle = "#1e293b";
-    ctx.font = "12px Inter, system-ui, sans-serif";
+    ctx.font = "12px Poppins, system-ui, sans-serif";
+    // Offset text so it stays within the outer edge
     ctx.fillText(p.name, radius - 15, 4);
     ctx.restore();
   });
 }
 
+/**
+ * Updates the "Winners" sidebar with the list of people picked.
+ */
 function updateWinnersUI() {
   winnersList.innerHTML = "";
   selectedWinners.forEach((w, index) => {
@@ -131,7 +147,8 @@ function updateWinnersUI() {
         <div class="text-muted small">${w.company_name} · ${w.position}</div>
       </div>
     `;
-    // Add custom keyframes locally
+    
+    // Inject CSS for the fade-in effect if not already present
     if (!document.getElementById("fadeInKeyframes")) {
       const style = document.createElement("style");
       style.id = "fadeInKeyframes";
@@ -146,12 +163,15 @@ function updateWinnersUI() {
   }
 }
 
+/**
+ * Helper to wait for a certain amount of time (used for suspense between spins).
+ */
 function sleep(ms) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
 /**
- * Handle multiple local spins one by one
+ * Main Controller for the spinning animation and selection logic.
  */
 async function spinAndPickLocal() {
   if (spinning || !participants.length) return;
@@ -163,10 +183,11 @@ async function spinAndPickLocal() {
   clearButton.disabled = true;
 
   for (let i = 0; i < numWinners; i++) {
-    // Find available participants
+    // Determine who is left to pick from
     const availableParticipants = participants.filter(
       (p) => !selectedWinners.some((w) => w.id === p.id),
     );
+    
     if (availableParticipants.length === 0) {
       wheelSelectedName.textContent = "All Picked!";
       break;
@@ -174,70 +195,72 @@ async function spinAndPickLocal() {
 
     wheelSelectedName.textContent = "Spinning...";
 
-    // Pick one at random
+    // Pre-calculate the winner locally
     const randomIndex = Math.floor(
       Math.random() * availableParticipants.length,
     );
     const thisWinner = availableParticipants[randomIndex];
 
-    // Animate Spin Segment for roughly 2.5 seconds
-    const duration = 2500;
+    // Animation settings
+    const duration = 2500; // 2.5 seconds
     const start = performance.now();
 
-    // Wait till animation completes
+    // The Animation Loop
     await new Promise((resolve) => {
       function animate(now) {
         const elapsed = now - start;
         const t = Math.min(elapsed / duration, 1);
+        
+        // Cubic ease-out calculation for "natural" slowing down
         const eased = 1 - Math.pow(1 - t, 3);
-        // Spin random extra rotations to look real + land on the slice
-        const randomExtraSpins = Math.PI * 8; // 4 full turns
-
-        // Calculate the final angle offset to ensure winner is exactly at the top (indicator position)
+        
+        const randomExtraSpins = Math.PI * 8; // Adds 4 full turns for momentum
         const sliceAngle = (2 * Math.PI) / availableParticipants.length;
-        const targetAngleForTop = -Math.PI / 2; // top of canvas where indicator is
+        const targetAngleForTop = -Math.PI / 2; // -90 deg (where the visual pointer sits)
 
+        // Calculate where the winner segment's center is on the circle
         const winnerCenterAngle = randomIndex * sliceAngle + sliceAngle / 2;
 
-        // The total rotation we want to hit by the end
+        // Determine final rotation needed to line up the winner under the arrow
         const endRotation =
           randomExtraSpins + (targetAngleForTop - winnerCenterAngle);
 
         const currentAngle = eased * endRotation;
 
+        // Apply rotation to the entire canvas view
         ctx.save();
         ctx.clearRect(0, 0, canvas.width, canvas.height);
         ctx.translate(canvas.width / 2, canvas.height / 2);
         ctx.rotate(currentAngle);
         ctx.translate(-canvas.width / 2, -canvas.height / 2);
-        drawWheel();
+        drawWheel(); // Redraw the static wheel state within the rotated context
         ctx.restore();
 
         if (t < 1) {
-          requestAnimationFrame(animate);
+          requestAnimationFrame(animate); 
         } else {
-          resolve();
+          resolve(); // Animation finished
         }
       }
       requestAnimationFrame(animate);
     });
 
-    // Add to active lists immediately after the spin completes
+    // Finalize the pick
     selectedWinners.push(thisWinner);
     updateWinnersUI();
-
     wheelSelectedName.textContent = thisWinner.name;
 
-    // Wait briefly for suspense if there are more spins left
+    // Pause for suspense if more picks are coming
     if (i < numWinners - 1 && availableParticipants.length > 1) {
       await sleep(1500);
     }
   }
 
-  // Draw the final state of the wheel with remaining users
+  // Final draw to update states
   drawWheel();
 
   spinning = false;
+  // Re-enable/Disable button based on remaining pool
   spinButton.disabled = selectedWinners.length >= participants.length;
   clearButton.disabled = false;
 
@@ -247,7 +270,7 @@ async function spinAndPickLocal() {
 }
 
 /**
- * Clear the current winners list and reset the wheel label.
+ * Resets the local session state.
  */
 function clearWinners() {
   selectedWinners = [];
@@ -257,6 +280,8 @@ function clearWinners() {
   spinButton.disabled = participants.length === 0;
 }
 
+// --- EVENT LISTENERS ---
+
 if (spinButton) {
   spinButton.addEventListener("click", spinAndPickLocal);
 }
@@ -265,6 +290,7 @@ if (clearButton) {
   clearButton.addEventListener("click", clearWinners);
 }
 
+// Kick off the initial load
 if (canvas) {
   loadParticipants();
 }

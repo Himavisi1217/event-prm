@@ -1,6 +1,7 @@
+/* --- GLOBAL STYLES --- */
 body {
   font-family:
-    "Inter",
+    "Poppins",
     system-ui,
     -apple-system,
     BlinkMacSystemFont,
@@ -8,6 +9,10 @@ body {
     sans-serif;
 }
 
+/* 
+   Background with a subtle, modern gradient. 
+   Uses multiple radial gradients to create a premium depth effect.
+*/
 .bg-gradient {
   min-height: 100vh;
   background:
@@ -17,6 +22,7 @@ body {
   color: #1e293b;
 }
 
+/* Glassmorphism Navbar: blurred background that lets colors show through */
 .navbar-blur {
   backdrop-filter: blur(18px);
   background: rgba(255, 255, 255, 0.85);
@@ -27,6 +33,9 @@ body {
   color: #0f172a !important;
 }
 
+/* --- BUTTON STYLES --- */
+
+/* Clean, modern outline buttons with soft hover states */
 .btn-outline-light {
   color: #334155;
   border-color: #cbd5e1;
@@ -49,6 +58,26 @@ body {
   color: #0f172a;
 }
 
+/* Primary Button: Vibrant gradient from Indigo to Purple */
+.btn-primary {
+  background: linear-gradient(135deg, #6366f1, #a855f7);
+  border: none;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: linear-gradient(135deg, #4f46e5, #9333ea);
+  color: white;
+}
+
+.btn-modern {
+  border-radius: 0.75rem;
+  font-weight: 500;
+}
+
+/* --- UI COMPONENTS --- */
+
+/* Glass Card: Semi-transparent with a strong backdrop blur and subtle border */
 .card-glass {
   border-radius: 1.25rem;
   background: rgba(255, 255, 255, 0.9);
@@ -58,6 +87,7 @@ body {
   box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.08);
 }
 
+/* Inputs with larger border radius and focused glow */
 .form-control-modern {
   border-radius: 0.75rem;
   border-color: #cbd5e1;
@@ -71,26 +101,7 @@ body {
   background-color: #ffffff;
 }
 
-.btn-modern {
-  border-radius: 0.75rem;
-  font-weight: 500;
-}
-
-.btn-primary {
-  background: linear-gradient(135deg, #6366f1, #a855f7);
-  border: none;
-  color: white;
-}
-
-.btn-primary:hover {
-  background: linear-gradient(135deg, #4f46e5, #9333ea);
-  color: white;
-}
-
-.alert-modern {
-  border-radius: 0.75rem;
-}
-
+/* Success iconography (checkmark circles) */
 .success-icon {
   width: 64px;
   height: 64px;
@@ -108,28 +119,28 @@ body {
   color: #22c55e;
 }
 
-.text-muted {
-  color: #64748b !important;
-}
-
+/* Soft badges for secondary metadata */
 .badge.bg-secondary-soft {
   background-color: #f1f5f9;
   color: #475569;
 }
 
-/* Wheel styles */
+/* --- WHEEL SPECIFIC UI --- */
+
 .wheel-container {
   position: relative;
   width: 320px;
   height: 320px;
 }
 
+/* The physical canvas circle */
 #wheelCanvas {
   border-radius: 50%;
   box-shadow: 0 20px 45px rgba(0, 0, 0, 0.1);
   background-color: #ffffff;
 }
 
+/* The stationary center cap of the wheel */
 .wheel-center {
   position: absolute;
   inset: 50%;
@@ -151,6 +162,7 @@ body {
     0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* The downward-facing arrow indicator */
 .wheel-indicator {
   position: absolute;
   top: 6px;
@@ -165,6 +177,7 @@ body {
   z-index: 10;
 }
 
+/* Winners Sidebar List styles */
 #winnersList {
   max-height: 260px;
   overflow-y: auto;
@@ -177,10 +190,7 @@ body {
   color: #1e293b;
 }
 
-#winnersList .list-group-item span.badge {
-  font-weight: 500;
-}
-
+/* Custom Scrollbar for the winners list */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -190,6 +200,7 @@ body {
   border-radius: 999px;
 }
 
+/* Winner Card in the detail section */
 .glass-winner-card {
   border-radius: 1.25rem;
   background:
@@ -215,9 +226,4 @@ body {
   font-size: 1.1rem;
   color: #0f172a;
   font-weight: 600;
-}
-
-.glass-winner-card .winner-meta {
-  font-size: 0.85rem;
-  color: #64748b;
 }
