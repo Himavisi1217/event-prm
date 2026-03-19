@@ -260,4 +260,65 @@ endblock %} {% block content %}
     </div>
   </div>
 </div>
+{% block scripts %}
+<script>
+  // Script to update the participant list in real-time
+  const EVENT_ID = "{{ event.id }}";
+  const FETCH_URL = `/api/participants/${EVENT_ID}`;
+  const tableBody = document.querySelector("tbody");
+  const totalBadge = document.querySelector(".badge.bg-secondary-soft");
+
+  async function refreshParticipants() {
+    // Only refresh if the "Add Participant" modal is NOT open to avoid focus issues
+    const modalElement = document.getElementById("addParticipantModal");
+    if (modalElement && modalElement.classList.contains("show")) return;
+
+    try {
+      const response = await fetch(FETCH_URL);
+      const participants = await response.json();
+
+      // Update the "Total Count" badge
+      if (totalBadge) totalBadge.textContent = `Total: ${participants.length}`;
+
+      if (participants.length === 0) {
+        tableBody.innerHTML = `
+          <tr>
+            <td colspan="6" class="text-center text-muted py-5">
+              No participants have registered for this event yet.
+            </td>
+          </tr>`;
+        return;
+      }
+
+      // Render new table rows
+      let rowsHtml = "";
+      participants.forEach((p) => {
+        // Construct the Edit URL (can be hardcoded with IDs)
+        const editUrl = `/admin/events/${EVENT_ID}/participants/${p.id}/edit`;
+        const deleteUrl = `/admin/events/${EVENT_ID}/participants/${p.id}/delete`;
+
+        rowsHtml += `
+          <tr>
+            <td>${p.name}</td>
+            <td>${p.company_name}</td>
+            <td>${p.position}</td>
+            <td>${p.mobile_number}</td>
+            <td>${p.email}</td>
+            <td class="text-end">
+              <a href="${editUrl}" class="btn btn-outline-dark btn-sm btn-modern me-1">Edit</a>
+              <form method="post" action="${deleteUrl}" class="d-inline" onsubmit="return confirm('Delete this participant?');">
+                <button type="submit" class="btn btn-outline-danger btn-sm btn-modern">Delete</button>
+              </form>
+            </td>
+          </tr>`;
+      });
+      tableBody.innerHTML = rowsHtml;
+    } catch (e) {
+      console.error("Error refreshing participants:", e);
+    }
+  }
+
+  // Poll every 5 seconds
+  setInterval(refreshParticipants, 5000);
+</script>
 {% endblock %}

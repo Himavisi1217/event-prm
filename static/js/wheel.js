@@ -293,4 +293,12 @@ if (clearButton) {
 // Kick off the initial load
 if (canvas) {
   loadParticipants();
+  
+  // Real-time update: poll the backend every 5 seconds to get new participants
+  setInterval(() => {
+    // Only refresh if not currently spinning to avoid visual glitches
+    if (!spinning) {
+      loadParticipants();
+    }
+  }, 5000); // 5 seconds interval
 }
