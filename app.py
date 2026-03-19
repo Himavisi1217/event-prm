@@ -112,7 +112,7 @@ def register(event_id):
             for pid, pdata in all_participants.items():
                 if pdata.get("email") == email:
                     flash("This email is already registered for this event.", "warning")
-                    return redirect(url_for("register_success"))
+                    return redirect(url_for("register_success", event_id=event_id))
 
         # Prepare participant data object
         participant_data = {
@@ -128,15 +128,15 @@ def register(event_id):
         post_url = get_firebase_url(f"/participants/{event_id}")
         requests.post(post_url, json=participant_data)
 
-        return redirect(url_for("register_success"))
+        return redirect(url_for("register_success", event_id=event_id))
 
     return render_template("register.html", event=event_data, event_id=event_id)
 
 
-@app.route("/success")
-def register_success():
+@app.route("/success/<event_id>")
+def register_success(event_id):
     """Simple confirmation page after registration."""
-    return render_template("success.html")
+    return render_template("success.html", event_id=event_id)
 
 
 @app.route("/admin/events/<event_id>/wheel")
