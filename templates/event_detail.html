@@ -148,10 +148,16 @@ endblock %} {% block content %}
           Guests can scan this to join <strong>{{ event.name }}</strong>
         </p>
         <img
-          src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data={{ url_for('register', event_id=event.id, _external=True) }}"
+          id="qrImage"
+          src="https://api.qrserver.com/v1/create-qr-code/?size=300x300&data={{ url_for('register', event_id=event.id, _external=True) }}"
           alt="QR Code"
-          class="img-fluid rounded shadow-sm border"
+          class="img-fluid rounded shadow-sm border mb-3"
         />
+        <div class="d-grid gap-2">
+          <button onclick="downloadQR()" class="btn btn-outline-primary btn-sm btn-modern">
+            Download QR Code
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -320,5 +326,29 @@ endblock %} {% block content %}
 
   // Poll every 5 seconds
   setInterval(refreshParticipants, 5000);
+
+  // Download QR Code Function
+  async function downloadQR() {
+    const qrImg = document.getElementById('qrImage');
+    const qrUrl = qrImg.src;
+    const eventName = "{{ event.name }}".replace(/[^a-z0-9]/gi, '_').toLowerCase();
+    
+    try {
+      const response = await fetch(qrUrl);
+      const blob = await response.blob();
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.style.display = 'none';
+      a.href = url;
+      a.download = `qr_register_${eventName}.png`;
+      document.body.appendChild(a);
+      a.click();
+      window.URL.revokeObjectURL(url);
+      document.body.removeChild(a);
+    } catch (error) {
+      console.error('Download failed:', error);
+      window.open(qrUrl, '_blank');
+    }
+  }
 </script>
 {% endblock %}
