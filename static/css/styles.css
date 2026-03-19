@@ -15,10 +15,9 @@ body {
 */
 .bg-gradient {
   min-height: 100vh;
-  background:
-    radial-gradient(circle at top left, #e0e7ff 0%, transparent 60%),
-    radial-gradient(circle at bottom right, #fce7f3 0%, #f3f4f6 60%);
-  background-color: #f8fafc;
+  /* SLTMobitel 5G Theme Gradient: Neon Green to Deep Blue */
+  background: linear-gradient(160deg, #00ff41 0%, #0072ff 45%, #0033ff 100%);
+  background-attachment: fixed;
   color: #1e293b;
 }
 
